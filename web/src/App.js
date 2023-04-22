@@ -1,24 +1,29 @@
 import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Routes, Route, Switch } from 'react-router-dom';
+import EntrypointPage from './pages/entrypoint';
+import CapturePage from './pages/capture';
+import { initializeApp, getApp } from 'firebase/app';
+import 'firebase/firestore';
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
-function App() {
+function App({ firebaseConfig }) {
+  initializeApp(firebaseConfig);
+
+  console.log("env: " + process.env.NODE_ENV + " Emulator:" + process.env.REACT_APP_FIREBASE_USE_EMULATOR);
+  if (process.env.REACT_APP_FIREBASE_USE_EMULATOR == "true") {
+    const functions = getFunctions(getApp());
+    connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+    console.log("set emulator");
+  }
+  // if (!firebase.apps.length) {
+  // }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          This is my amazing push request. <b>Fixed!</b>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Route exact path="/" component={EntrypointPage} />
+      <Route path="/capture" component={CapturePage} />
+    </BrowserRouter>
   );
 }
 
