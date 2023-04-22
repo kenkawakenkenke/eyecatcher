@@ -14,9 +14,8 @@ exports.processImage = functions
     // Unfortunately, CORS seems to have issues when we set the region.
     // .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-        functions.logger.info("Process image! " + data, { structuredData: true });
+        functions.logger.info("Process image! ", { structuredData: true });
         const img = data["image"];
-        console.log(img);
 
         return {
             status: "ok",
