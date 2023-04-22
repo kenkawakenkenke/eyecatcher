@@ -10,8 +10,8 @@ import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 function App({ firebaseConfig }) {
   initializeApp(firebaseConfig);
 
-  console.log("env: " + process.env.NODE_ENV);
-  if (process.env.REACT_APP_FIREBASE_USE_EMULATOR) {
+  console.log("env: " + process.env.NODE_ENV + " Emulator:" + process.env.REACT_APP_FIREBASE_USE_EMULATOR);
+  if (process.env.REACT_APP_FIREBASE_USE_EMULATOR == "true") {
     const functions = getFunctions(getApp());
     connectFunctionsEmulator(functions, "127.0.0.1", 5001);
     console.log("set emulator");
