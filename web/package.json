@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "dotenv -e .env.local react-scripts build",
+    "build": "CI=false && dotenv -e .env.local react-scripts build",
     "devbuild": "dotenv -e .env.development.local react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
