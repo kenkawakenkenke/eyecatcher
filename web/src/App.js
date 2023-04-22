@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          This is my amazing push request. <
+          This is my amazing push request. <b>Fixed!</b>
         </p>
         <a
           className="App-link"
