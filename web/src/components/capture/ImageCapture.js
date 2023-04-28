@@ -3,8 +3,8 @@ import Webcam from 'react-webcam'
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const videoConstraints = {
-    width: 300,
-    height: 300,
+    // width: 300,
+    // height: 300,
     facingMode: 'user',
 }
 
@@ -14,9 +14,40 @@ function ImageCapture() {
 
     const [result, setResult] = useState("");
 
-    const handleCapturePhoto = async () => {
-        // Capture image
-        const pictureSrc = webcamRef.current.getScreenshot()
+    async function getImageDimensions(dataUrl) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = dataUrl;
+            img.onload = () => {
+                resolve({ width: img.width, height: img.height });
+            };
+            img.onerror = reject;
+        });
+    }
+
+    async function resizeImage(imageUrl, width) {
+        const image = new Image();
+        image.src = imageUrl;
+
+        await image.decode();
+
+        const canvas = document.createElement('canvas');
+        const height = (image.height / image.width) * width;
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, width, height);
+
+        const resizedImageUrl = canvas.toDataURL('image/jpeg');
+        return resizedImageUrl;
+    }
+
+    async function capture(width) {
+        var pictureSrc = webcamRef.current.getScreenshot();
+        if (width) {
+            pictureSrc = await resizeImage(pictureSrc, width);
+        }
 
         // Show image
         setImage(pictureSrc);
@@ -34,17 +65,23 @@ function ImageCapture() {
         }
 
         setResult(response.data.result);
+    }
+
+    const handleCapturePhoto = async () => {
+        capture();
+    };
+    const handleCapturePhotoSmall = async () => {
+        capture(300);
     };
 
     return (
         <div>
             <button onClick={handleCapturePhoto}>Capture Photo</button>
+            <button onClick={handleCapturePhotoSmall}>Capture Photo Small</button>
 
             <Webcam
                 audio={false}
-                height={200}
                 ref={webcamRef}
-                width={200}
                 screenshotFormat="image/jpeg"
                 videoConstraints={videoConstraints}
             />
