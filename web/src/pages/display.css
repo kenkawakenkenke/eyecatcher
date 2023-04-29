@@ -40,6 +40,7 @@
     position: absolute;
     bottom: 20px;
     left: 50%;
+    margin-left: -24px;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
@@ -53,14 +54,6 @@
     color: #fff;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
-
-/* .arrow-animation {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: arrowBounce 1s infinite;
-}*/
 
 @keyframes arrowBounce {
 
