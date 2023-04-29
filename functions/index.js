@@ -22,7 +22,7 @@ exports.processImage = functions
         const img = data["image"];
         const croppedImage = img.substring("data:image/jpeg;base64,".length);
 
-        var result = "skipped everything";
+        var ocrResult = await doOCR(croppedImage, data["skipOCR"]);
 
         // const config = {};
         // if (process.env.PROJECT_ID) {
@@ -39,7 +39,7 @@ exports.processImage = functions
         //         content: croppedImage
         //     },
         // };
-        // const result = await client.textDetection(request);
+        // result = await client.textDetection(request);
 
         // const configuration = new Configuration({
         //     apiKey: process.env.OPENAI_API_KEY,
@@ -63,6 +63,46 @@ exports.processImage = functions
         return {
             env: process.env.ENVIRONMENT,
             status: "ok",
-            result,
+            ocrResult,
         }
     });
+
+async function doOCR(image, skip = false) {
+    if (skip) {
+        return {
+            rawResult: {
+                skipped: true,
+            },
+            fullText: "While Satya Nadella telling reporters that artificial intelligence was creating a new day in search. Microsoft's much-maligned Bing was integrating Open Al's ChatGPT technology to generate information directly for users, not just links. And in doing so, it was directly challenging Google, the undisputed champion of search, by trying to out innovate Google on its home turf. This wasn't supposed to happen, especially not to Google. Already burned in 2014 by Amazon's Al-enabled Alexa voice assistant, Google announced in 2016 that it would become an Al - first company. Google's problem certainly wasn't engineering. The company had made fundamental advances in AI. Notwithstanding Google's costly flawed demo earlier this month, its LaMDA chatbot ad ne the ChatGPT3 SPERMAIN AGEN PENGEMEN",
+        }
+    }
+
+    const config = {};
+    if (process.env.PROJECT_ID) {
+        config.projectId = process.env.PROJECT_ID;
+        console.log("set project id", process.env.PROJECT_ID);
+    }
+    if (process.env.SERVICE_ACCOUNT_FILE) {
+        config.keyFilename = process.env.SERVICE_ACCOUNT_FILE;
+        console.log("set account file", process.env.SERVICE_ACCOUNT_FILE);
+    }
+    const client = new vision.ImageAnnotatorClient(config);
+    var request = {
+        image: {
+            content: image
+        },
+    };
+    const rawResult = await client.textDetection(request);
+    var fullTexts = [];
+    for (var document of rawResult) {
+        if (document?.fullTextAnnotation?.text) {
+            console.log("text: ", document.fullTextAnnotation.text);
+            fullTexts.push(document.fullTextAnnotation.text);
+        }
+    }
+    const fullText = fullTexts.join("\n");
+    return {
+        rawResult,
+        fullText,
+    }
+}

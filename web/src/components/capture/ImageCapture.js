@@ -60,6 +60,7 @@ function ImageCapture() {
 
         var response = await processImage({
             image,
+            skipOCR: true,
         });
 
         console.log(response);
@@ -67,7 +68,7 @@ function ImageCapture() {
             throw new Error("Failed to query image")
         }
 
-        setResult(response.data.status);
+        setResult("Captured: " + response.data.ocrResult.fullText);
     }
 
     const handleCapturePhoto = async () => {
