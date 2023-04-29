@@ -123,6 +123,7 @@ async function summarizeText(ocredText, skip) {
     const messages = [
         {
             "role": "system", "content": `
+日本語で答えてください。
 今から提示する文章は本にOCRをかけた結果です。そのため言葉が断片的で欠けていますが、元の文章は本の1ページです。
 子供がこの本を読んで答えを調べたくなるような煽り文句を作ってください。
 ・例えば：
