@@ -52,14 +52,8 @@ function DisplayPage({ image, summary, resetCallback, timeout }) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
                 </svg>
-            </button> {/* Replace the arrow text with an SVG arrow icon */}
+            </button>
             <p className="display-text" style={{ color: textColor }}>{texts[currentIndex]}</p>
-
-            {/* <div className="arrow-animation">
-                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L12 22M12 22L6 16M12 22L18 16" stroke={textColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-            </div> */}
             <div className="arrow-container">
                 {/* <span className="arrow-text" style={{ color: textColor }}>読んで知ろう！</span> */}
                 <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
