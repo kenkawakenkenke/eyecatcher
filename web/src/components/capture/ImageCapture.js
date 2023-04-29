@@ -61,6 +61,7 @@ function ImageCapture() {
         var response = await processImage({
             image,
             skipOCR: true,
+            skipGPT: false,
         });
 
         console.log(response);
