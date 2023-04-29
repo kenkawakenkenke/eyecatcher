@@ -12,7 +12,7 @@ const videoConstraints = {
 
 const summarizer = new TextSummarizer();
 
-function ImageCapture() {
+function DebugCapture() {
     const [image, setImage] = useState(null);
     const webcamRef = React.useRef(null)
 
@@ -70,4 +70,4 @@ function ImageCapture() {
     );
 }
 
-export default ImageCapture;
+export default DebugCapture;
