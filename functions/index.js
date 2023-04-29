@@ -84,6 +84,10 @@ async function askGPT(messages) {
         // model: "gpt-4",
         model: "gpt-3.5-turbo-0301",
         messages,
+        // { "role": "user", "content": ocredText },
+        // { "role": "user", "content": "Who won the world series in 2027?" },
+        // { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2027." },
+        // { "role": "user", "content": "Where was it played?" }
     });
     return completion.data.choices;
 }
@@ -120,28 +124,25 @@ async function summarizeText(ocredText, skip) {
         {
             "role": "system", "content": `
 今から提示する文章は本にOCRをかけた結果です。そのため言葉が断片的で欠けていますが、元の文章は本の1ページです。
-このページを子供が読んで答えを調べたくなるようなクイズを作ってください。
-・文中の興味深い事実を選び、それが答えとなるような質問を作ってください。
+子供がこの本を読んで答えを調べたくなるような煽り文句を作ってください。
+・例えば：
+「シマウマが縞々になった驚きの理由とは！？」
+「イルカって脳みそを半分ずつ寝かせられるってしってた？」
+「ドラゴンボールのスカウターがたまに爆発する驚きのメカニズム！！」
+・文中の興味深い事実を選び、それが答えとなるような質問や紹介をしてください。
 ・モノや生物の名前が答えとなるような質問は避けてください。
 ・答えを知った子供が「へー」と言いたくなるような意外性のある事実やメカニズムを出題してください。
 ・質問の答えは必ず元の文章の中に含まれているものにしてください。
 ・小学三年生が理解できる日本語で書いてください。
-・バラエティ番組のような、盛り上がる質問の形式にしてください。
-・例えば！！をたくさん使い、難しい専門用語を避けてください。
-・質問はなるべく短く簡潔に、10文字程度で書いてください。
-・５つ作ってください
-・それぞれの質問は「」だけで囲って新しい行で書いてください。
-・以下の例のように、興奮した質問にしてください：
-「シマウマが縞々になった驚きの理由とは！？」
-「イルカがたまにする意外な行動を調べてみよう！！」
+・バラエティ番組のように、読む人が盛り上がる文章の形式にしてください。
+・例えば「！！」をたくさん使い、難しい専門用語を避けてください。
+・文はなるべく短く簡潔に、10文字程度で書いてください。
+・10個作ってください
+・文は「」で囲い、それぞれ新しい行で書いてください。
 
 本文：
 ${ocredText}
 ` },
-        // { "role": "user", "content": ocredText },
-        // { "role": "user", "content": "Who won the world series in 2027?" },
-        // { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2027." },
-        // { "role": "user", "content": "Where was it played?" }
     ];
     const gptResult = await askGPT(messages);
     const questions = [];

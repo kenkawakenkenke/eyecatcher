@@ -43,7 +43,7 @@ function DebugCapture() {
         loadImage(image);
     };
     const handleFakeImage = async () => {
-        loadImage(IMAGE_BOOK_1, true);
+        loadImage(IMAGE_BOOK_1, false);
     };
     const printImage = async () => {
         console.log(`export const IMAGE = "${webcamRef.current.getScreenshot()}";`);
