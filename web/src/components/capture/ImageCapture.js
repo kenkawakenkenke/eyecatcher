@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import Webcam from 'react-webcam'
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { IMAGE_ARTICLE, IMAGE_BOOK_1 } from './TestImage.js';
-import { RESPONSE_BOOK_1 } from './TestResponse.js';
+import { IMAGE_BOOK_1 } from './TestImage.js';
+import { TextSummarizer } from './TextSummarizer.js';
+import { resizeImage } from './ImageUtil.js';
 
 const videoConstraints = {
     width: 1280,
     height: 960,
-    // width: 300,
-    // height: 300,
     facingMode: 'environment',
 }
+
+const summarizer = new TextSummarizer();
 
 function ImageCapture() {
     const [image, setImage] = useState(null);
@@ -18,74 +18,29 @@ function ImageCapture() {
 
     const [result, setResult] = useState("");
 
-    async function getImageDimensions(dataUrl) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = dataUrl;
-            img.onload = () => {
-                resolve({ width: img.width, height: img.height });
-            };
-            img.onerror = reject;
-        });
-    }
-
-    async function resizeImage(imageUrl, width) {
-        const image = new Image();
-        image.src = imageUrl;
-
-        await image.decode();
-
-        const canvas = document.createElement('canvas');
-        const height = (image.height / image.width) * width;
-        canvas.width = width;
-        canvas.height = height;
-
-        const context = canvas.getContext('2d');
-        context.drawImage(image, 0, 0, width, height);
-
-        const resizedImageUrl = canvas.toDataURL('image/jpeg');
-        return resizedImageUrl;
-    }
-
-    async function capture(width) {
-        var pictureSrc = webcamRef.current.getScreenshot();
+    async function captureImage(width) {
+        var image = webcamRef.current.getScreenshot();
         if (width) {
-            pictureSrc = await resizeImage(pictureSrc, width);
+            image = await resizeImage(image, width);
         }
-        loadImage(pictureSrc);
-    }
-
-    async function fetchSummaryFromBackend(image, skipAll = false) {
-        if (skipAll) {
-            return RESPONSE_BOOK_1;
-        }
-
-        var response = await httpsCallable(getFunctions(undefined), 'processImage')({
-            image,
-            skipOCR: false,
-            skipGPT: false,
-        });
-
-        console.log(response);
-        if (!response || response.data.status !== "ok") {
-            throw new Error("Failed to query image")
-        }
-        return response;
+        return image;
     }
 
     async function loadImage(image, skipAll = false) {
         setImage(image);
 
-        const response = await fetchSummaryFromBackend(image, skipAll);
+        const response = await summarizer.summarize(image, skipAll);
 
         setResult("Captured: " + response.data.gptResult.questions);
     }
 
     const handleCapturePhoto = async () => {
-        capture();
+        const image = await captureImage();
+        loadImage(image);
     };
     const handleCapturePhotoSmall = async () => {
-        capture(300);
+        const image = await captureImage(300);
+        loadImage(image);
     };
     const handleFakeImage = async () => {
         loadImage(IMAGE_BOOK_1, true);
