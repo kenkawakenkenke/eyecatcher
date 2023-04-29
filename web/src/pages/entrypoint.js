@@ -9,6 +9,9 @@ function EntrypointPage() {
             <Link to="/capture">
                 <button>Capture</button>
             </Link>
+            <Link to="/debug">
+                <button>Debug</button>
+            </Link>
         </div>
     );
 }

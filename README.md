@@ -21,6 +21,7 @@ You also need to create a serviceAccountKey.json for your emulator, and place it
 Then start the emulator:
 
 ```
+nvm use 16
 firebase emulators:start
 ```
 
