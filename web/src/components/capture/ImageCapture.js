@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import Webcam from 'react-webcam'
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { IMAGE_ARTICLE, IMAGE_BOOK_1 } from './TestImage.js';
+import { RESPONSE_BOOK_1 } from './TestResponse.js';
 
 const videoConstraints = {
     width: 1280,
     height: 960,
     // width: 300,
     // height: 300,
-    facingMode: 'user',
+    facingMode: 'environment',
 }
 
 function ImageCapture() {
@@ -51,16 +52,15 @@ function ImageCapture() {
         if (width) {
             pictureSrc = await resizeImage(pictureSrc, width);
         }
-        processImage(pictureSrc);
+        loadImage(pictureSrc);
     }
 
-    async function processImage(image) {
-        setImage(image);
+    async function fetchSummaryFromBackend(image, skipAll = false) {
+        if (skipAll) {
+            return RESPONSE_BOOK_1;
+        }
 
-        // Query image to backend.
-        const processImage = httpsCallable(getFunctions(undefined), 'processImage');
-
-        var response = await processImage({
+        var response = await httpsCallable(getFunctions(undefined), 'processImage')({
             image,
             skipOCR: false,
             skipGPT: false,
@@ -70,6 +70,13 @@ function ImageCapture() {
         if (!response || response.data.status !== "ok") {
             throw new Error("Failed to query image")
         }
+        return response;
+    }
+
+    async function loadImage(image, skipAll = false) {
+        setImage(image);
+
+        const response = await fetchSummaryFromBackend(image, skipAll);
 
         setResult("Captured: " + response.data.gptResult.questions);
     }
@@ -81,7 +88,7 @@ function ImageCapture() {
         capture(300);
     };
     const handleFakeImage = async () => {
-        processImage(IMAGE_BOOK_1);
+        loadImage(IMAGE_BOOK_1, true);
     };
     const printImage = async () => {
         console.log(`export const IMAGE = "${webcamRef.current.getScreenshot()}";`);
@@ -104,7 +111,7 @@ function ImageCapture() {
             {image && <img src={image} alt="Captured Image" />}
 
             {result}
-        </div>
+        </div >
     );
 }
 
