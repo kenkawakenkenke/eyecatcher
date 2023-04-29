@@ -1,9 +1,6 @@
-import logo from './logo.svg';
 import './App.css';
 import { BrowserRouter, Routes, Route, Switch } from 'react-router-dom';
 import TopPage from './pages/top';
-import EntrypointPage from './pages/entrypoint';
-import CapturePage from './pages/capture';
 import DebugPage from './pages/debug';
 import { initializeApp, getApp } from 'firebase/app';
 import 'firebase/firestore';
@@ -22,12 +19,10 @@ function App({ firebaseConfig }) {
   // }
 
   return (
-    <TopPage />
-    // <BrowserRouter>
-    //   <Route exact path="/" component={EntrypointPage} />
-    //   <Route path="/capture" component={CapturePage} />
-    //   <Route path="/debug" component={DebugPage} />
-    // </BrowserRouter>
+    <BrowserRouter>
+      <Route exact path="/" component={TopPage} />
+      <Route path="/debug" component={DebugPage} />
+    </BrowserRouter>
   );
 }
 
