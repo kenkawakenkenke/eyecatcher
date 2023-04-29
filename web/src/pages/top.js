@@ -12,7 +12,7 @@ function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const DEV = false;
+const DEV = true;
 
 function TopPage() {
     const [image, setImage] = useState(null);
