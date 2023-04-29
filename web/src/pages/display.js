@@ -38,6 +38,14 @@ function DisplayPage({ image, summary, resetCallback, timeout }) {
         return () => clearInterval(interval);
     }, [texts]);
 
+
+    useEffect(() => {
+        document.documentElement.style.setProperty('--background-color', backgroundColor);
+        return () => {
+            document.documentElement.style.removeProperty('--background-color');
+        };
+    }, [backgroundColor]);
+
     return (
         <div className="display-container" style={{ backgroundColor }}>
             <button className="back-button" onClick={resetCallback}>
