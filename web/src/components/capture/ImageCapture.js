@@ -64,7 +64,7 @@ function ImageCapture() {
             throw new Error("Failed to query image")
         }
 
-        setResult(response.data.result);
+        setResult(response.data.status);
     }
 
     const handleCapturePhoto = async () => {
