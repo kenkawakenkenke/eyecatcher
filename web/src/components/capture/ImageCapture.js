@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Webcam from 'react-webcam'
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { IMAGE_ARTICLE } from './TestImage.js';
+import { IMAGE_ARTICLE, IMAGE_BOOK_1 } from './TestImage.js';
 
 const videoConstraints = {
+    width: 1280,
+    height: 960,
     // width: 300,
     // height: 300,
     facingMode: 'user',
@@ -60,7 +62,7 @@ function ImageCapture() {
 
         var response = await processImage({
             image,
-            skipOCR: true,
+            skipOCR: false,
             skipGPT: false,
         });
 
@@ -69,7 +71,7 @@ function ImageCapture() {
             throw new Error("Failed to query image")
         }
 
-        setResult("Captured: " + response.data.ocrResult.fullText);
+        setResult("Captured: " + response.data.gptResult.questions);
     }
 
     const handleCapturePhoto = async () => {
@@ -79,7 +81,7 @@ function ImageCapture() {
         capture(300);
     };
     const handleFakeImage = async () => {
-        processImage(IMAGE_ARTICLE);
+        processImage(IMAGE_BOOK_1);
     };
     const printImage = async () => {
         console.log(`export const IMAGE = "${webcamRef.current.getScreenshot()}";`);

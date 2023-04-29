@@ -63,7 +63,7 @@ async function doOCR(image, skip = false) {
     var fullTexts = [];
     for (var document of rawResult) {
         if (document?.fullTextAnnotation?.text) {
-            console.log("text: ", document.fullTextAnnotation.text);
+            // console.log("text: ", document.fullTextAnnotation.text);
             fullTexts.push(document.fullTextAnnotation.text);
         }
     }
@@ -80,7 +80,9 @@ async function askGPT(messages) {
     });
     const openai = new OpenAIApi(configuration);
     const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        // model: "gpt-3.5-turbo",
+        // model: "gpt-4",
+        model: "gpt-3.5-turbo-0301",
         messages,
     });
     return completion.data.choices;
@@ -89,10 +91,22 @@ async function askGPT(messages) {
 async function summarizeText(ocredText, skip) {
     if (skip) {
         return {
-            skipped: true,
-            outputs: [
-                "foo",
-                "bar",
+            "questions": [
+                "イラガやマダラガのとげは痛いけど、ナシイラガやクロシタアオイラガのとげはなぜ炎症を起こさないの？",
+                "ウメスカシクロバの幼虫がウメの葉を食べつくす理由は？",
+                "アカイラガの幼虫が落ち葉にまゆをつくる理由は？",
+                "タケノホソクロバの幼虫がわざわざ集団生活をする理由は？",
+                "イラガやマダラガのとげに比べ、クロシタアオイラガやナシイラガのとげの毒性はなぜ弱いの？"
+            ],
+            "rawResult": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": "「イラガやマダラガのとげは痛いけど、ナシイラガやクロシタアオイラガのとげはなぜ炎症を起こさないの？」\n「ウメスカシクロバの幼虫がウメの葉を食べつくす理由は？」\n「アカイラガの幼虫が落ち葉にまゆをつくる理由は？」\n「タケノホソクロバの幼虫がわざわざ集団生活をする理由は？」\n「イラガやマダラガのとげに比べ、クロシタアオイラガやナシイラガのとげの毒性はなぜ弱いの？」"
+                    },
+                    "finish_reason": "stop",
+                    "index": 0
+                }
             ]
         };
     }
@@ -103,11 +117,55 @@ async function summarizeText(ocredText, skip) {
     }
 
     const messages = [
-        { "role": "system", "content": "You are a helpful assistant." },
-        { "role": "user", "content": "Who won the world series in 2027?" },
-        { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2027." },
-        { "role": "user", "content": "Where was it played?" }
-    ];
+        {
+            "role": "system", "content": `
+今から提示する文章は本にOCRをかけた結果です。そのため言葉が断片的で欠けていますが、元の文章は本の1ページです。
+このページを子供が読んで答えを調べたくなるようなクイズを作ってください。
+・文中の興味深い事実を選び、それが答えとなるような質問を作ってください。
+・モノや生物の名前が答えとなるような質問は避けてください。
+・答えを知った子供が「へー」と言いたくなるような意外性のある事実やメカニズムを出題してください。
+・質問の答えは必ず元の文章の中に含まれているものにしてください。
+・小学三年生が理解できる日本語で書いてください。
+・バラエティ番組のような、盛り上がる質問の形式にしてください。
+・例えば！！をたくさん使い、難しい専門用語を避けてください。
+・質問はなるべく短く簡潔に、10文字程度で書いてください。
+・５つ作ってください
+・それぞれの質問は「」だけで囲って新しい行で書いてください。
+・以下の例のように、興奮した質問にしてください：
+「シマウマが縞々になった驚きの理由とは！？」
+「イルカがたまにする意外な行動を調べてみよう！！」
 
-    return await askGPT(messages);
+本文：
+${ocredText}
+` },
+        // { "role": "user", "content": ocredText },
+        // { "role": "user", "content": "Who won the world series in 2027?" },
+        // { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2027." },
+        // { "role": "user", "content": "Where was it played?" }
+    ];
+    const gptResult = await askGPT(messages);
+    const questions = [];
+    for (var result of gptResult) {
+        for (var line of result.message.content.split("\n")) {
+            questions.push(extractOuterQuotes(line));
+        }
+    }
+
+    return {
+        questions,
+        rawResult: gptResult,
+    };
+}
+
+function extractOuterQuotes(str) {
+    const firstQuoteIndex = str.indexOf('「');
+    const lastQuoteIndex = str.lastIndexOf('」');
+
+    if (firstQuoteIndex === -1 || lastQuoteIndex === -1) {
+        // console.log("No matching quotes found.");
+        // return "";
+        return str;
+    }
+
+    return str.substring(firstQuoteIndex + 1, lastQuoteIndex);
 }
