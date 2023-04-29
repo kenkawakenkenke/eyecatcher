@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Webcam from 'react-webcam'
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { IMAGE_ARTICLE } from './TestImage.js';
 
 const videoConstraints = {
     // width: 300,
@@ -48,15 +49,17 @@ function ImageCapture() {
         if (width) {
             pictureSrc = await resizeImage(pictureSrc, width);
         }
+        processImage(pictureSrc);
+    }
 
-        // Show image
-        setImage(pictureSrc);
+    async function processImage(image) {
+        setImage(image);
 
         // Query image to backend.
         const processImage = httpsCallable(getFunctions(undefined), 'processImage');
 
         var response = await processImage({
-            image: pictureSrc,
+            image,
         });
 
         console.log(response);
@@ -73,11 +76,19 @@ function ImageCapture() {
     const handleCapturePhotoSmall = async () => {
         capture(300);
     };
+    const handleFakeImage = async () => {
+        processImage(IMAGE_ARTICLE);
+    };
+    const printImage = async () => {
+        console.log(`export const IMAGE = "${webcamRef.current.getScreenshot()}";`);
+    };
 
     return (
         <div>
             <button onClick={handleCapturePhoto}>Capture Photo</button>
             <button onClick={handleCapturePhotoSmall}>Capture Photo Small</button>
+            <button onClick={handleFakeImage}>Capture Fake</button>
+            <button onClick={printImage}>Print image</button>
 
             <Webcam
                 audio={false}

@@ -22,6 +22,8 @@ exports.processImage = functions
         const img = data["image"];
         const croppedImage = img.substring("data:image/jpeg;base64,".length);
 
+        var result = "skipped everything";
+
         // const config = {};
         // if (process.env.PROJECT_ID) {
         //     config.projectId = process.env.PROJECT_ID;
@@ -39,27 +41,28 @@ exports.processImage = functions
         // };
         // const result = await client.textDetection(request);
 
-        const configuration = new Configuration({
-            apiKey: process.env.OPENAI_API_KEY,
-        });
-        const openai = new OpenAIApi(configuration);
-        const completion = await openai.createChatCompletion({
-            // model: "text-davinci-003",
-            model: "gpt-3.5-turbo",
-            // prompt: "How are you?",
-            messages: [
-                { "role": "system", "content": "You are a helpful assistant." },
-                { "role": "user", "content": "Who won the world series in 2027?" },
-                { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2027." },
-                { "role": "user", "content": "Where was it played?" }
-            ],
-            // temperature: 0.6,
-        });
-        console.log(completion.data)
+        // const configuration = new Configuration({
+        //     apiKey: process.env.OPENAI_API_KEY,
+        // });
+        // const openai = new OpenAIApi(configuration);
+        // const completion = await openai.createChatCompletion({
+        //     // model: "text-davinci-003",
+        //     model: "gpt-3.5-turbo",
+        //     // prompt: "How are you?",
+        //     messages: [
+        //         { "role": "system", "content": "You are a helpful assistant." },
+        //         { "role": "user", "content": "Who won the world series in 2027?" },
+        //         { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2027." },
+        //         { "role": "user", "content": "Where was it played?" }
+        //     ],
+        //     // temperature: 0.6,
+        // });
+        // console.log(completion.data)
+        // result = completion.data.choices;
 
         return {
             env: process.env.ENVIRONMENT,
             status: "ok",
-            result: completion.data.choices,
+            result,
         }
     });
