@@ -20,11 +20,12 @@ exports.processImage = functions
         functions.logger.info("Process image! ", { structuredData: true });
 
         const img = data["image"];
+        const lang = data["lang"] || "ja";
         const croppedImage = img.substring("data:image/jpeg;base64,".length);
 
         var ocrResult = await doOCR(croppedImage, data["skipOCR"]);
 
-        var gptResult = await summarizeText(ocrResult.fullText, data["skipGPT"]);
+        var gptResult = await summarizeText(ocrResult.fullText, data["skipGPT"], lang);
 
         return {
             env: process.env.ENVIRONMENT,
@@ -92,7 +93,7 @@ async function askGPT(messages) {
     return completion.data.choices;
 }
 
-async function summarizeText(ocredText, skip) {
+async function summarizeText(ocredText, skip, lang) {
     if (skip) {
         return {
             "questions": [
@@ -111,18 +112,20 @@ async function summarizeText(ocredText, skip) {
                     "finish_reason": "stop",
                     "index": 0
                 }
-            ]
+            ],
+            lang,
         };
     }
     if (ocredText === "") {
         return {
             outputs: [],
+            lang,
         };
     }
 
-    const messages = [
-        {
-            "role": "system", "content": `
+    var prompt;
+    if (lang === "ja") {
+        prompt = `
 日本語で答えてください。
 今から提示する文章は本にOCRをかけた結果です。そのため言葉が断片的で欠けていますが、元の文章は本の1ページです。
 子供がこの本を読んで答えを調べたくなるような煽り文句を作ってください。
@@ -143,31 +146,60 @@ async function summarizeText(ocredText, skip) {
 
 本文：
 ${ocredText}
-` },
+`;
+    } else {
+        prompt = `
+Answer this in english.
+今から提示する文章は本にOCRをかけた結果です。そのため言葉が断片的で欠けていますが、元の文章は本の1ページです。
+子供がこの本を読んで答えを調べたくなるような煽り文句を作ってください。
+・例えば：
+「シマウマが縞々になった驚きの理由とは！？」
+「イルカって脳みそを半分ずつ寝かせられるってしってた？」
+「ドラゴンボールのスカウターがたまに爆発する驚きのメカニズム！！」
+・文中の興味深い事実を選び、それが答えとなるような質問や紹介をしてください。
+・モノや生物の名前が答えとなるような質問は避けてください。
+・答えを知った子供が「へー」と言いたくなるような意外性のある事実やメカニズムを出題してください。
+・質問の答えは必ず元の文章の中に含まれているものにしてください。
+・必ず小学三年生が理解できる英語で書いてください。
+・バラエティ番組のように、読む人が盛り上がる文章の形式にしてください。
+・例えば「！！」をたくさん使い、難しい専門用語を避けてください。
+・文はなるべく短く簡潔に、10文字程度で書いてください。
+・10個作ってください
+・文は「」で囲い、それぞれ新しい行で書いてください。
+You must answer this in english.
+
+本文：
+${ocredText}
+`;
+    }
+
+    const messages = [
+        {
+            "role": "system", "content": prompt
+        },
     ];
     const gptResult = await askGPT(messages);
     const questions = [];
     for (var result of gptResult) {
         for (var line of result.message.content.split("\n")) {
-            questions.push(extractOuterQuotes(line));
+            const extracted = extractOuterQuotes(line);
+            if (extracted === "") continue;
+            questions.push(extracted);
         }
     }
 
     return {
         questions,
         rawResult: gptResult,
+        lang,
     };
 }
 
 function extractOuterQuotes(str) {
-    const firstQuoteIndex = str.indexOf('「');
-    const lastQuoteIndex = str.lastIndexOf('」');
-
-    if (firstQuoteIndex === -1 || lastQuoteIndex === -1) {
-        // console.log("No matching quotes found.");
-        // return "";
-        return str;
+    const match = str.match(/^([^「\"]*)[「\"](.+)[」\"]([^」\"]*)$/);
+    if (match) {
+        console.log(match);
+        return content = match[2].trim(); // "content"
     }
-
-    return str.substring(firstQuoteIndex + 1, lastQuoteIndex);
+    return "";
 }

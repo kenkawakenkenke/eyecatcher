@@ -12,20 +12,21 @@ function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// const DEV = true;
-const DEV = false;
-
 function TopPage() {
     const [image, setImage] = useState(null);
     const [summary, setSummary] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
 
+    const searchParams = new URLSearchParams(window.location.search);
+    const dev = searchParams.get("dev") === "true";
+    const lang = searchParams.get("lang") || "ja";
+
     async function captureImage(image) {
         try {
             setImage(image);
 
-            const response = await summarizer.summarize(image, DEV);
-            if (DEV) {
+            const response = await summarizer.summarize(image, dev, lang);
+            if (dev) {
                 await delay(3000);
             }
             console.log("response", response);
@@ -62,7 +63,7 @@ function TopPage() {
         <div className="main-contents">
             {pagePhase === "capture" && <CapturePage captureCallback={captureImage} />}
             {pagePhase === "loading" && <LoadingPage image={image} resetCallback={reset} />}
-            {pagePhase === "display" && <DisplayPage image={image} summary={summary} resetCallback={reset} timeout={DEV ? 3000 : 10000} />}
+            {pagePhase === "display" && <DisplayPage image={image} summary={summary} resetCallback={reset} timeout={dev ? 3000 : 10000} />}
         </div>
         {errorMessage && (
             <div className="error-modal">
