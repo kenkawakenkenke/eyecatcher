@@ -6,7 +6,7 @@ export class TextSummarizer {
 
     }
 
-    async summarize(image, skipAll = false) {
+    async summarize(image, skipAll = false, lang = "ja") {
         if (skipAll) {
             return RESPONSE_BOOK_1;
         }
@@ -15,6 +15,7 @@ export class TextSummarizer {
             image,
             skipOCR: false,
             skipGPT: false,
+            lang,
         });
 
         console.log(response);
